@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Locations</title>
+
+        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+        <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+        <style type="text/css">
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            html, body, #map {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+
+    </head>
+
+    <body>
+
+     <div id="map"></div>
+
+    <script type="text/javascript">
+
+        var map = L.map('map');
+
+        var home = [48.36171, 10.89259];
+        map.setView(home, 13);
+        map.locate({setView: true, maxZoom: 16});
+
+        L.tileLayer('https://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'examples.map-i875mjb7'
+		}).addTo(map);
+
+{#        var homeMarker = L.Icon({#}
+{#            iconUrl: '{{ url_for('static', filename='markers/home.png') }}'#}
+{#        });#}
+
+{#		L.marker(home).addTo(map);#}
+{#			//.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();#}
+
+        function loadData() {
+            var bounds = map.getBounds();
+            var e = arguments[0];
+            $.getJSON('/locations/' + bounds.toBBoxString(), function(data) {
+                data.forEach(function(loc) {
+                    new L.GeoJSON(loc).addTo(map);
+                });
+            })
+        }
+
+        map.on('load', loadData);
+        map.on('viewreset', loadData);
+        map.on('resize', loadData);
+
+        /*
+		var popup = L.popup();
+
+		function onMapClick(e) {
+			popup
+				.setLatLng(e.latlng)
+				.setContent("You clicked the map at " + e.latlng.toString())
+				.openOn(map);
+		}
+
+		map.on('click', onMapClick);
+        */
+
+    </script>
+
+
+    </body>
+
+</html>
