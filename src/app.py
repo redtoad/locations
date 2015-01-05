@@ -1,11 +1,12 @@
 import functools
 import json
-import os
 
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, redirect, flash
 from flask.ext.mongoengine import MongoEngine
+from utils import address_lookup
 
 app = Flask(__name__)   # create our flask app
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 # --------- Database Connection ---------
 # MongoDB connection to MongoLab's database
@@ -41,9 +42,43 @@ def jsonify(fnc):
     return decorated_function
 
 
+def is_ajax():
+    print request.headers
+    return 'XMLHttpRequest' in request.headers.get('X_REQUESTED_WITH', '')
+
+
 @app.route('/')
 def index():
     return render_template('overview-map.html')
+
+
+@app.route('/location', methods=['GET', 'POST'])
+def add_location():
+
+    if request.method == 'POST':
+
+        address = request.form.get('address')
+        coordinates = address_lookup(address)
+
+        if address and coordinates:
+            loc = models.Location()
+            loc.address = address
+            loc.point = coordinates
+            loc.save()
+
+        else:
+            flash('Thanks for registering', 'error')
+            return render_template('add_location.html')
+
+        add_another = 'add_another' in request.form
+
+        if add_another:
+            return redirect('/location')
+        if not is_ajax():
+            return redirect('/')
+
+    return render_template('add_location.html')
+
 
 @app.route('/locations/<coord:lonSW>,<coord:latSW>,<coord:lonNE>,<coord:latNE>')
 @jsonify

@@ -43,19 +43,34 @@
 			id: 'examples.map-i875mjb7'
 		}).addTo(map);
 
-{#        var homeMarker = L.Icon({#}
-{#            iconUrl: '{{ url_for('static', filename='markers/home.png') }}'#}
-{#        });#}
+        var homeMarker = new L.Icon({
+            iconUrl: '{{ url_for('static', filename='markers/home.png') }}',
+            iconSize: [32, 37],
+            iconAnchor: [16, 37],
+            popupAnchor: [0, -28]
+        });
 
 {#		L.marker(home).addTo(map);#}
 {#			//.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();#}
+
+        var markers = new L.GeoJSON().addTo(map);
+        L.Util.setOptions(markers, {
+            pointToLayer: function (feature, latlng) {
+                console.log(feature);
+                var HOME = 'home';
+                if (feature.properties.type === HOME) {
+
+                }
+                return L.marker(latlng, {icon: homeMarker});
+            }
+        });
 
         function loadData() {
             var bounds = map.getBounds();
             var e = arguments[0];
             $.getJSON('/locations/' + bounds.toBBoxString(), function(data) {
                 data.forEach(function(loc) {
-                    new L.GeoJSON(loc).addTo(map);
+                    markers.addData(loc);
                 });
             })
         }
