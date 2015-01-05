@@ -89,18 +89,20 @@ def get_locations(lonSW, latSW, lonNE, latNE):
     for loc in models.Location.objects():
         print loc
 
-    def toGeoJSON(loc):
+    def to_geojson(loc):
+        properties = loc.properties
+        properties.update({
+            "name": loc.properties.get('name', loc.address),
+            "address": loc.address,
+            "date_creation": str(loc.timestamp)
+        })
         return {
             "type": "Feature",
             "geometry": loc.point,
-            "properties": {
-                "name": "Plaza Road Park",
-                "address": loc.address,
-                "date_creation": str(loc.timestamp)
-            }
+            "properties": properties
         }
 
-    return map(toGeoJSON, locations)
+    return map(to_geojson, locations)
 
 
 @app.errorhandler(404)

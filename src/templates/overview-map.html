@@ -57,11 +57,11 @@
         L.Util.setOptions(markers, {
             pointToLayer: function (feature, latlng) {
                 console.log(feature);
-                var HOME = 'home';
+                var HOME = 'Home';
                 if (feature.properties.type === HOME) {
-
+                    return L.marker(latlng, {icon: homeMarker});
                 }
-                return L.marker(latlng, {icon: homeMarker});
+                return L.marker(latlng);
             }
         });
 
